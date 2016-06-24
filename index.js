@@ -34,8 +34,12 @@ SteamTradeOffers.prototype.setup = function(options) {
   }.bind(this));
 };
 
-SteamTradeOffers.prototype.getOfferToken = function(callback) {
-  this.getOfferUrl(function(error, offerUrl) {
+SteamTradeOffers.prototype.getOfferToken = function(steamid, callback) {
+  if(typeof steamid == 'function') {
+    callback = steamid;
+    steamid = null;
+  }
+  this.getOfferUrl(steamid, function(error, offerUrl) {
     if (error) {
       return callback(error);
     }
@@ -45,9 +49,15 @@ SteamTradeOffers.prototype.getOfferToken = function(callback) {
   });
 };
 
-SteamTradeOffers.prototype.getOfferUrl = function(callback) {
+SteamTradeOffers.prototype.getOfferUrl = function(steamid, callback) {
+  if(typeof steamid == 'function') {
+    callback = steamid;
+    steamid = null;
+  }
   this._requestCommunity.get({
-    uri: communityURL + '/my/tradeoffers/privacy'
+    uri: communityURL + (steamid
+        ? `/profiles/${steamid}/tradeoffers/privacy`
+        : `/my/tradeoffers/privacy`),
   }, function(error, response, body) {
     if (error || (response && response.statusCode !== 200)) {
       return callback(error || new Error(response.statusCode));
